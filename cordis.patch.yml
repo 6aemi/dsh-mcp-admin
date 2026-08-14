@@ -1,0 +1,6 @@
+# dsh-mcp-admin bundle layer. Rows reference the package by name so Node
+# resolves the installed code; the host Loader loads the host half (main) and
+# dsh-client-modules serves the browser bundle for the package's dsh.client.
+- insert:
+    - id: mcp-admin
+      name: dsh-mcp-admin

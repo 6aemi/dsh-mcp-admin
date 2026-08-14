@@ -1,0 +1,46 @@
+{
+  "name": "dsh-mcp-admin",
+  "version": "0.1.0",
+  "description": "MCP admin for dsh: /mcp server status and per-profile MCP server management (add/edit/delete/enable) from the settings page, via a typert remote.",
+  "license": "MIT",  "type": "module",
+  "main": "lib/host/index.js",
+  "exports": {
+    ".": "./lib/host/index.js",
+    "./host": "./lib/host/index.js",
+    "./client": {
+      "types": "./lib/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepare": "node build.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^5.5.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-primitives"
+      ],
+      "platform": "web"
+    }
+  }
+}
