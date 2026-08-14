@@ -1,0 +1,38 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # 把 package.json 版本同步成 tag 版本(去掉 v 前缀),避免 tag 与版本不一致。
+      - name: Sync version to tag
+        run: node -e "const p=require('./package.json'); p.version=process.env.GITHUB_REF_NAME.slice(1); require('fs').writeFileSync('package.json', JSON.stringify(p,null,2)+'\n')"
+
+      - run: pnpm install --frozen-lockfile
+      - run: node build.mjs
+      - run: pnpm pack
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dsh-mcp-admin-*.tgz \
+            --title "dsh-mcp-admin $GITHUB_REF_NAME" \
+            --generate-notes
