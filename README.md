@@ -2,6 +2,14 @@
 
 一个 dsh (DeepSeek Harness) 插件：**查看 MCP 状态**（`/mcp` 命令）+ **在设置页管理 MCP 服务**（增删改启停，写回 `cordis.patch.yml`）。[MIT](LICENSE) 许可。
 
+`/mcp` 命令输出:
+
+![`/mcp` 命令](command.png)
+
+设置页「MCP」面板:
+
+![设置页 MCP 面板](setting.png)
+
 ## 安装
 
 **Release tarball**(推荐,无需构建):到 [Releases](https://github.com/kairoz9/dsh-mcp-admin/releases) 下载 `dsh-mcp-admin-<version>.tgz`,然后:
@@ -14,7 +22,7 @@ dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
 
 ```sh
 node build.mjs        # 产出 lib/
-npm pack              # 打成 tarball
+pnpm pack             # 打成 tarball
 dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
 ```
 

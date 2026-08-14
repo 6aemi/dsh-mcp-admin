@@ -2,7 +2,8 @@
   "name": "dsh-mcp-admin",
   "version": "0.1.0",
   "description": "MCP admin for dsh: /mcp server status and per-profile MCP server management (add/edit/delete/enable) from the settings page, via a typert remote.",
-  "license": "MIT",  "type": "module",
+  "license": "MIT",
+  "type": "module",
   "main": "lib/host/index.js",
   "exports": {
     ".": "./lib/host/index.js",
@@ -19,7 +20,8 @@
   ],
   "scripts": {
     "build": "node build.mjs",
-    "prepare": "node build.mjs"
+    "prepare": "node build.mjs",
+    "test": "node --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "yaml": "^2.9.0"
