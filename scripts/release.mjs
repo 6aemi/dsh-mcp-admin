@@ -68,8 +68,8 @@ pkg.version = nextVersion
 fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
 console.log('✓ Updated package.json')
 
-// 5. Update README.md and README_en.md
-const docFiles = ['README.md', 'README_en.md']
+// 5. Update README.md and README.zh.md
+const docFiles = ['README.md', 'README.zh.md']
 for (const file of docFiles) {
   if (fs.existsSync(file)) {
     let content = fs.readFileSync(file, 'utf8')
