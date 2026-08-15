@@ -13,7 +13,8 @@
 - **cordis.patch.yml**：用户级配置 patch 文件，MCP server 实例以 `- insert` 条目存在其中。
 - **HMR（热重载）**：patch 文件改动后，dsh 自动卸载旧插件实例、按新配置加载新实例。
 - **settings.section**：Client 端设置页里的一个完整设置面板槽位。
-- **`/mcp` 命令**：Host 端文本命令，列出各 profile 的 MCP server 状态与实时 tool 数；`/mcp <server>` drill 进单个 server 的工具列表。
+- **ServerInventory**：当前 Profile 的 MCP server 配置清单、实时工具集合与连接状态的权威领域汇聚模块。
+- **`/mcp` 命令**：Host 端文本命令，列出当前 profile 的 MCP server 状态与实时 tool 数；`/mcp <server>` drill 进单个 server 的工具列表。
 - **状态轮询**：设置面板每秒轮询一次 `mcpAdmin.list()` 刷新状态点与 tool 数，离开页面停止。
 
 ## 关系
