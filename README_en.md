@@ -19,15 +19,15 @@ Settings page "MCP" panel:
 **Release tarball** (Recommended, no build required): Download `dsh-mcp-admin-<version>.tgz` from [Releases](https://github.com/kairoz9/dsh-mcp-admin/releases), then run:
 
 ```sh
-dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
+dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
 ```
 
 **Build tarball locally** (if building yourself):
 
 ```sh
-node build.mjs        # Builds to lib/
+pnpm run build        # Builds to lib/
 pnpm pack             # Packages into tarball
-dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
+dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
 ```
 
 **Git repository** (installs from source via `prepare` build):
@@ -41,7 +41,7 @@ dsh plugin --profile web add github:kairoz9/dsh-mcp-admin
 > allowBuilds:
 >   dsh-mcp-admin: true
 > ```
-> It is recommended to pin a commit or tag: `github:kairoz9/dsh-mcp-admin#v0.1.0`.
+> It is recommended to pin a commit or tag: `github:kairoz9/dsh-mcp-admin#v0.2.0`.
 
 ## Usage
 

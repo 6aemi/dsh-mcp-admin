@@ -26,10 +26,11 @@
     "cordis.patch.yml"
   ],
   "scripts": {
-    "build": "node build.mjs",
-    "prepare": "node build.mjs",
+    "build": "node scripts/build.mjs",
+    "prepare": "node scripts/build.mjs",
     "test": "node --test 'src/**/*.test.ts'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "release": "node scripts/release.mjs"
   },
   "dependencies": {
     "yaml": "^2.9.0"

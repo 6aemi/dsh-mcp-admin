@@ -19,15 +19,15 @@
 **Release tarball**(推荐,无需构建):到 [Releases](https://github.com/kairoz9/dsh-mcp-admin/releases) 下载 `dsh-mcp-admin-<version>.tgz`,然后:
 
 ```sh
-dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
+dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
 ```
 
 **本地构建 tarball**(想自己打):
 
 ```sh
-node build.mjs        # 产出 lib/
+pnpm run build        # 产出 lib/
 pnpm pack             # 打成 tarball
-dsh plugin --profile web add ./dsh-mcp-admin-0.1.0.tgz
+dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
 ```
 
 **Git 源码**(拉源码,靠 `prepare` 构建):
@@ -41,7 +41,7 @@ dsh plugin --profile web add github:kairoz9/dsh-mcp-admin
 > allowBuilds:
 >   dsh-mcp-admin: true
 > ```
-> 建议锁 commit 或 tag:`github:kairoz9/dsh-mcp-admin#v0.1.0`。
+> 建议锁 commit 或 tag:`github:kairoz9/dsh-mcp-admin#v0.2.0`。
 
 ## 使用
 
