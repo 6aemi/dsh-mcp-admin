@@ -6,16 +6,23 @@
  *
  * Each server card is collapsed by default: a status row (name + transport tag
  * + enabled switch + edit/delete). Clicking Edit expands the field editor;
- * Delete asks for confirmation through the shared Modal. Styling follows the
- * settings-panel design language (--dsw-alias tokens + Button/Modal
- * primitives); the esbuild bundle can't compile CSS modules, so the stylesheet
- * ships inline (mcpAs- prefix).
+ * Delete asks for confirmation through the shared Modal.
  */
 
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Input, Modal, Pill, StateDot, type StateDotState } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button, Input, Modal, Pill, StateDot } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ServerDef } from '../host/profile-store.ts'
+import {
+  type ServerDraft,
+  toDraft,
+  createEmptyDraft,
+  toCleanServer,
+  validateDraft,
+  serverState,
+  connectedCount,
+  TRANSPORT_LABELS,
+} from './server-draft.ts'
 
 const CSS = `
 .mcpAs-section{display:flex;flex-direction:column;gap:12px;max-width:720px;color:var(--dsw-alias-label-primary)}
@@ -64,7 +71,7 @@ const CSS = `
 
 /** Registration-side business face for the section. */
 export interface McpAdminSectionInjected {
-  /** Fetch every profile's MCP servers from the host (as ServerDef[]). */
+  /** Fetch the current profile's MCP servers from the host (as ServerDef[]). */
   loadServers: () => Promise<ServerDef[]>
   /** Persist the full server list (Host reconciles patch files). */
   saveServers: (servers: readonly ServerDef[]) => Promise<void>
@@ -76,29 +83,26 @@ export type McpAdminSectionProps =
   & PropsLocale<'mcp-admin'>
   & InjectFace<McpAdminSectionInjected>
 
-type Draft = ServerDef & { argsText?: string; headersText?: string }
-
 export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionProps) {
-  const [drafts, setDrafts] = useState<Draft[]>([])
+  const [drafts, setDrafts] = useState<ServerDraft[]>([])
   const [error, setError] = useState<string>()
   const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<string>()
   const [adding, setAdding] = useState(false)
-  const [newServer, setNewServer] = useState<Draft>()
+  const [newServer, setNewServer] = useState<ServerDraft>()
   const [editingId, setEditingId] = useState<string>()
-  const [editDraft, setEditDraft] = useState<Draft>()
+  const [editDraft, setEditDraft] = useState<ServerDraft>()
 
   useEffect(() => {
     let alive = true
     loadServers()
-      .then(servers => { if (alive) setDrafts(servers.map(draftOf)) })
+      .then(servers => { if (alive) setDrafts(servers.map(toDraft)) })
       .catch(err => { if (alive) setError(err instanceof Error ? err.message : String(err)) })
       .finally(() => { if (alive) setLoading(false) })
     return () => { alive = false }
   }, [loadServers])
 
-  // 每秒轮询宿主刷新状态点,让连接/断开/工具数自动变化;离开页面(组件
-  // 卸载)时停止。只合并实时状态字段,不覆盖正在编辑的文本,避免打字被刷掉。
+  // Poll host per second for live state updates without clobbering in-progress text edits.
   useEffect(() => {
     const timer = setInterval(async () => {
       try {
@@ -110,70 +114,44 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
           return { ...d, tools: st.tools, loaded: st.loaded, active: st.active }
         }))
       } catch {
-        // 静默:下轮重试,状态点保持上一次的值。
+        // Silently retry next cycle.
       }
     }, 1000)
     return () => clearInterval(timer)
   }, [loadServers])
 
-  // Auto-save: discrete actions persist immediately, text edits settle after a
-  // short debounce so typing batches into one write. The list is passed in so
-  // the save always sees the just-committed state, never a stale render value.
   const persist = useMemo(() => {
-    const run = async (list: readonly Draft[]): Promise<void> => {
-      const incomplete = list.find(s =>
-        !s.serverName.trim()
-        || (s.transport === 'stdio' ? !(s.command ?? '').trim() : !(s.url ?? '').trim()))
-      if (incomplete !== undefined) {
-        setError(incomplete.transport === 'stdio'
-          ? `"${incomplete.serverName || incomplete.id}" needs a serverName and a command to save.`
-          : `"${incomplete.serverName || incomplete.id}" needs a serverName and a url to save.`)
-        return
-      }
-      // Destructure the persisted args/headers out too: if the user clears the
-      // textareas, the stale loaded values must NOT survive in `s` — only the
-      // freshly parsed (possibly empty) values are written back below.
-      const clean = list.map(({ argsText, headersText, args: _args, headers: _headers, ...s }) => {
-        const args = (argsText ?? '').split('\n').map(x => x.trim()).filter(Boolean)
-        const headers = Object.fromEntries(
-          (headersText ?? '').split('\n').map(x => x.trim()).filter(Boolean)
-            .map(line => {
-              const i = line.indexOf('=')
-              return i >= 0 ? [line.slice(0, i).trim(), line.slice(i + 1).trim()] : [line, '']
-            }),
-        )
-        return {
-          ...s,
-          ...(args.length > 0 ? { args } : {}),
-          ...(Object.keys(headers).length > 0 ? { headers } : {}),
+    const run = async (list: readonly ServerDraft[]): Promise<void> => {
+      for (const item of list) {
+        const validation = validateDraft(item)
+        if (!validation.valid) {
+          setError(validation.error)
+          return
         }
-      })
+      }
+
+      const clean = list.map(toCleanServer)
       try {
         await saveServers(clean)
         setError(undefined)
-        // No re-fetch here: the per-second poll refreshes status dots, and a
-        // save-time fetch would catch the HMR reload mid-flight (all-blue flash).
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err))
       }
     }
-    return { immediate: (list: readonly Draft[]): void => { void run(list) } }
-  }, [saveServers, loadServers])
+    return { immediate: (list: readonly ServerDraft[]): void => { void run(list) } }
+  }, [saveServers])
 
-  const setAndSave = (next: Draft[]): void => {
+  const setAndSave = (next: ServerDraft[]): void => {
     setDrafts(next)
     persist.immediate(next)
   }
 
-  const update = (id: string, patch: Partial<Draft>): void => {
+  const update = (id: string, patch: Partial<ServerDraft>): void => {
     setAndSave(drafts.map(d => (d.id === id ? { ...d, ...patch } : d)))
   }
 
-  // Edit flow: like the model editor, editing drafts a copy in an expanded
-  // card and only commits to the host when Save is pressed.
-  const openEdit = (d: Draft): void => {
-    // Rebuild args/headers text from structured values so they always echo back.
-    setEditDraft(draftOf(d))
+  const openEdit = (d: ServerDraft): void => {
+    setEditDraft(toDraft(d))
     setEditingId(d.id)
   }
 
@@ -184,27 +162,21 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
 
   const saveEdit = (): void => {
     if (editingId === undefined || editDraft === undefined) return
-    if (!editDraft.serverName.trim()
-      || (editDraft.transport === 'stdio' ? !(editDraft.command ?? '').trim() : !(editDraft.url ?? '').trim())) {
-      setError(editDraft.transport === 'stdio'
-        ? 'Server needs a serverName and a command to save.'
-        : 'Server needs a serverName and a url to save.')
+    const validation = validateDraft(editDraft)
+    if (!validation.valid) {
+      setError(validation.error)
       return
     }
     setAndSave(drafts.map(d => (d.id === editingId ? editDraft : d)))
     closeEdit()
   }
 
-  const updateEdit = (patch: Partial<Draft>): void => {
+  const updateEdit = (patch: Partial<ServerDraft>): void => {
     setEditDraft(d => (d === undefined ? d : { ...d, ...patch }))
   }
 
-  // Add flow: like the model editor, a new server is drafted in its own card
-  // and only written to the host when Save is pressed. The form starts blank;
-  // only the transport dropdown defaults (stdio), and the id is left for the
-  // user to fill in.
   const openAdd = (): void => {
-    setNewServer({ id: '', profile: '', serverName: '', transport: 'stdio', command: '', url: '', disabled: false, argsText: '', headersText: '' })
+    setNewServer(createEmptyDraft())
     setAdding(true)
   }
 
@@ -215,13 +187,9 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
 
   const saveAdd = (): void => {
     if (newServer === undefined) return
-    if (!newServer.id.trim() || !newServer.serverName.trim()
-      || (newServer.transport === 'stdio' ? !(newServer.command ?? '').trim() : !(newServer.url ?? '').trim())) {
-      setError(!newServer.id.trim()
-        ? 'New server needs an id.'
-        : (newServer.transport === 'stdio'
-          ? 'New server needs a serverName and a command.'
-          : 'New server needs a serverName and a url.'))
+    const validation = validateDraft(newServer, true)
+    if (!validation.valid) {
+      setError(validation.error)
       return
     }
     setAndSave([...drafts, newServer])
@@ -229,7 +197,7 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
     setNewServer(undefined)
   }
 
-  const updateNew = (patch: Partial<Draft>): void => {
+  const updateNew = (patch: Partial<ServerDraft>): void => {
     setNewServer(d => (d === undefined ? d : { ...d, ...patch }))
   }
 
@@ -421,35 +389,3 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
     </div>
   )
 }
-
-function draftOf(s: ServerDef): Draft {
-  // Prefer an existing text copy over re-deriving from the structured fields:
-  // a saved edit draft carries fresh argsText/headersText but stale args/
-  // headers (the structured copy predates the edit). Re-deriving from the stale
-  // copy would make reopening the editor show the pre-edit values.
-  const withText = s as Partial<Draft>
-  return {
-    ...s,
-    argsText: withText.argsText ?? (s.args ?? []).join('\n'),
-    headersText: withText.headersText ?? Object.entries(s.headers ?? {}).map(([k, v]) => `${k}=${v}`).join('\n'),
-  }
-}
-
-/** Enabled servers with at least one live tool. */
-function connectedCount(drafts: readonly Draft[]): number {
-  return drafts.filter(d => !d.disabled && ((d as { tools?: number }).tools ?? 0) > 0).length
-}
-
-/** Per-server status dot: done when connected, ongoing when no mcp-client
- * instance exists yet (freshly added, or reload in flight), error when the
- * instance is alive but has zero tools (dead connection), warning when
- * disabled. */
-function serverState(d: Draft): StateDotState {
-  if (d.disabled) return 'warning'
-  // No live mcp-client instance: pending, not an error.
-  if ((d as { active?: boolean }).active !== true) return 'ongoing'
-  return ((d as { tools?: number }).tools ?? 0) > 0 ? 'done' : 'error'
-}
-
-/** Transport display labels: http shows for streamable-http, value unchanged. */
-const TRANSPORT_LABELS: Record<'stdio' | 'streamable-http', string> = { stdio: 'stdio', 'streamable-http': 'http' }

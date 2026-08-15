@@ -11,6 +11,7 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { McpAdminSection, type McpAdminSectionInjected, type McpAdminSectionProps } from './McpAdminSection.tsx'
 import type { ServerDef } from '../host/profile-store.ts'
+import { serverStatusLabel } from './server-draft.ts'
 
 export const name = 'mcp-admin-client'
 export const inject = ['slots', 'commandUi', 'remote', 'remote.commands', 'locale']
@@ -118,7 +119,7 @@ export function apply(ctx: Context): void {
         return servers.map(s => ({
           id: s.serverName,
           label: `${s.serverName} · ${s.tools} tools`,
-          detail: s.disabled ? 'disabled' : (s.tools > 0 ? 'connected' : 'disconnected'),
+          detail: serverStatusLabel(s),
         }))
       },
       onSelect: async (option, session) => {
