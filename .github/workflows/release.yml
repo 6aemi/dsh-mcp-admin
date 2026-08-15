@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -32,10 +34,35 @@ jobs:
       - run: pnpm run build
       - run: pnpm pack
 
+      - name: Generate changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..${GITHUB_REF_NAME}"
+          else
+            RANGE="${GITHUB_REF_NAME}"
+          fi
+          node -e '
+            const { execSync } = require("child_process");
+            const range = process.env.RANGE;
+            const log = execSync(`git log ${range} --pretty=format:"%s (%h)"`, { encoding: "utf8" }).trim();
+            const lines = log ? log.split("\n") : [];
+            const feats = lines.filter(l => /^feat/i.test(l)).map(l => `* ${l}`);
+            const fixes = lines.filter(l => /^fix/i.test(l)).map(l => `* ${l}`);
+            const others = lines.filter(l => !/^feat/i.test(l) && !/^fix/i.test(l) && !/^chore\(release\)/i.test(l)).map(l => `* ${l}`);
+            let out = "## What'\''s Changed\n\n";
+            if (feats.length) out += `### 🚀 Features\n${feats.join("\n")}\n\n`;
+            if (fixes.length) out += `### 🐛 Bug Fixes\n${fixes.join("\n")}\n\n`;
+            if (others.length) out += `### 🔨 Other Changes\n${others.join("\n")}\n\n`;
+            require("fs").writeFileSync("RELEASE_NOTES.md", out || "Initial release.\n");
+          '
+        env:
+          RANGE: ${{ github.ref_name }}
+
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" dsh-mcp-admin-*.tgz \
             --title "dsh-mcp-admin $GITHUB_REF_NAME" \
-            --generate-notes
+            --notes-file RELEASE_NOTES.md

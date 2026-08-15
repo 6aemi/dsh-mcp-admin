@@ -1,0 +1,18 @@
+# GitHub Release Notes configuration
+changelog:
+  categories:
+    - title: '🚀 Features'
+      labels:
+        - 'enhancement'
+        - 'feature'
+        - 'feat'
+    - title: '🐛 Bug Fixes'
+      labels:
+        - 'bug'
+        - 'fix'
+    - title: '🔨 Maintenance & CI'
+      labels:
+        - 'chore'
+        - 'ci'
+        - 'refactor'
+        - 'dependencies'

@@ -1,6 +1,6 @@
 {
   "name": "dsh-mcp-admin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP admin for dsh: /mcp server status and per-profile MCP server management (add/edit/delete/enable) from the settings page, via a typert remote.",
   "license": "MIT",
   "keywords": [
