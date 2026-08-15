@@ -23,51 +23,7 @@ import {
   connectedCount,
   TRANSPORT_LABELS,
 } from './server-draft.ts'
-
-const CSS = `
-.mcpAs-section{display:flex;flex-direction:column;gap:12px;max-width:720px;color:var(--dsw-alias-label-primary)}
-.mcpAs-title,.mcpAs-empty{margin:0;font-size:16px;line-height:24px;font-weight:500;color:var(--dsw-alias-label-primary)}
-.mcpAs-titleRow{display:flex;align-items:center;gap:8px}
-.mcpAs-intro{margin:0;font-size:14px;line-height:22px;color:var(--dsw-alias-label-tertiary)}
-.mcpAs-error{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-state-error-primary)}
-.mcpAs-rows{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
-.mcpAs-rowCard{border:1px solid var(--dsw-alias-border-l2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
-.mcpAs-rowHead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.mcpAs-rowIdentity{display:inline-flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto}
-.mcpAs-rowName{font-size:14px;line-height:22px;font-weight:500;color:var(--dsw-alias-label-primary)}
-.mcpAs-rowActions{display:inline-flex;align-items:center;gap:6px;margin-left:auto}
-.mcpAs-deleteConfirm:not(:disabled){border-color:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-state-error-primary)}
-.mcpAs-deleteConfirm:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-danger)}
-.mcpAs-editor{border-radius:12px;background:var(--dsw-alias-bg-module-platform);padding:14px 16px;display:flex;flex-direction:column;gap:14px}
-.mcpAs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.mcpAs-span2{grid-column:1/-1}
-.mcpAs-field{display:flex;flex-direction:column;gap:6px;min-width:0}
-.mcpAs-fieldLabel{display:inline-flex;align-items:center;gap:10px;font-size:14px;line-height:22px;font-weight:500;color:var(--dsw-alias-label-secondary)}
-.mcpAs-pill{background:var(--dsw-alias-bg-layer-2);box-shadow:inset 0 0 0 1px var(--dsw-alias-border-l2)}
-.mcpAs-input{box-sizing:border-box;width:100%;height:32px;padding:0 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px;font:inherit;font-size:14px;line-height:22px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary)}
-.mcpAs-input:focus{outline:none;border-color:var(--dsw-alias-brand-primary)}
-.mcpAs-input::placeholder{color:var(--dsw-alias-label-dimmed)}
-.mcpAs-input:disabled{opacity:.6;cursor:default}
-.mcpAs-selectInput{appearance:none;max-width:240px;cursor:pointer;padding-right:32px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2381858C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px}
-.mcpAs-inputWrap{width:100%;min-width:0;box-sizing:border-box}
-.mcpAs-inputWrap:has(input:disabled){opacity:.6;cursor:default}
-.mcpAs-textarea{box-sizing:border-box;width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px;font:inherit;font-size:14px;line-height:22px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);resize:vertical}
-.mcpAs-textarea:focus{outline:none;border-color:var(--dsw-alias-brand-primary)}
-.mcpAs-textarea::placeholder{color:var(--dsw-alias-label-dimmed)}
-.mcpAs-editorActions{display:flex;justify-content:flex-end;gap:8px}
-.mcpAs-emptySlot{box-sizing:border-box;display:flex;align-items:center;justify-content:center;min-height:56px;border:1px dashed var(--dsw-alias-border-l3);border-radius:12px;font-size:14px;line-height:22px;color:var(--dsw-alias-label-tertiary)}
-.mcpAs-addButton{width:100%;height:56px;border:1px dashed var(--dsw-alias-border-l3);border-radius:12px;font-size:14px}
-.mcpAs-addCard{list-style:none;border-radius:12px;background:var(--dsw-alias-bg-module-platform);padding:14px 16px;display:flex;flex-direction:column;gap:14px}
-.mcpAs-addHead{display:flex;align-items:center;gap:8px}
-/* Toggle switch */
-.mcpAs-switch{position:relative;display:inline-flex;align-items:center;width:36px;height:22px;flex:none;cursor:pointer}
-.mcpAs-switch input{position:absolute;opacity:0;width:0;height:0}
-.mcpAs-switchTrack{position:absolute;inset:0;border-radius:11px;background:var(--dsw-alias-border-l3);transition:background 120ms ease}
-.mcpAs-switch input:checked + .mcpAs-switchTrack{background:var(--dsw-alias-state-success-primary)}
-.mcpAs-switchKnob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform 120ms ease}
-.mcpAs-switch input:checked ~ .mcpAs-switchKnob{transform:translateX(14px)}
-.mcpAs-switch input:focus-visible + .mcpAs-switchTrack{box-shadow:0 0 0 2px var(--dsw-alias-border-l3)}
-`
+import CSS from './McpAdminSection.css'
 
 /** Registration-side business face for the section. */
 export interface McpAdminSectionInjected {

@@ -35,6 +35,7 @@ const client = await build({
   platform: 'browser',
   target: 'es2022',
   jsx: 'automatic',
+  loader: { '.css': 'text' },
   sourcemap: false,
   absWorkingDir: process.cwd(),
   external: ['react', 'react/jsx-runtime', '@deepseek-ai/*'],
