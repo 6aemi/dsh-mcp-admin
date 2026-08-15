@@ -12,6 +12,16 @@ import type { Context } from '@deepseek-ai/cordis'
 import { McpAdminSection, type McpAdminSectionInjected, type McpAdminSectionProps } from './McpAdminSection.tsx'
 import type { ServerDef } from '../host/profile-store.ts'
 import { serverStatusLabel } from './server-draft.ts'
+import CSS from './McpAdminSection.css'
+
+const tagId = 'dsh-mcp-admin/style'
+if (typeof document !== 'undefined' && document.querySelector(`style[data-plugin-css="${tagId}"]`) === null) {
+  const tag = document.createElement('style')
+  tag.dataset.plugin = 'dsh-mcp-admin'
+  tag.dataset.pluginCss = tagId
+  tag.textContent = CSS
+  document.head.appendChild(tag)
+}
 
 export const name = 'mcp-admin-client'
 export const inject = ['slots', 'commandUi', 'remote', 'remote.commands', 'locale']
@@ -156,6 +166,24 @@ export function apply(ctx: Context): void {
       label: () => 'MCP',
       inject: injected,
     }, McpAdminSection))
+  }
+
+  // Tag the MCP settings sidebar nav button to apply the dedicated official-style MCP icon
+  if (typeof document !== 'undefined') {
+    const tagMcpNav = () => {
+      const labels = document.querySelectorAll('button[class*="navCell"] > span[class*="navLabel"]')
+      for (const el of labels) {
+        if (el.textContent?.trim() === 'MCP') {
+          const btn = el.closest('button')
+          if (btn && !btn.hasAttribute('data-nav-id')) {
+            btn.setAttribute('data-nav-id', 'mcp-admin')
+          }
+        }
+      }
+    }
+    const observer = new MutationObserver(tagMcpNav)
+    observer.observe(document.body, { childList: true, subtree: true })
+    tagMcpNav()
   }
 }
 

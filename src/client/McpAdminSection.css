@@ -21,6 +21,28 @@
   gap: 8px;
 }
 
+/* Replace fallback gear icon on the MCP settings nav tab with official-style MCP plug icon */
+button[data-nav-id="mcp-admin"] > svg[class*="navIcon"] {
+  display: none !important;
+}
+
+button[data-nav-id="mcp-admin"]::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  background-color: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 1.5V5M11.5 1.5V5M2.5 5H13.5C14.0523 5 14.5 5.44772 14.5 6V8C14.5 11.3137 11.8137 14 8.5 14H7.5C4.18629 14 1.5 11.3137 1.5 8V6C1.5 5.44772 1.94772 5 2.5 5Z' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M8 14V15.5' stroke='%23000' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='5.5' cy='8.5' r='1' fill='%23000'/%3E%3Ccircle cx='10.5' cy='8.5' r='1' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4.5 1.5V5M11.5 1.5V5M2.5 5H13.5C14.0523 5 14.5 5.44772 14.5 6V8C14.5 11.3137 11.8137 14 8.5 14H7.5C4.18629 14 1.5 11.3137 1.5 8V6C1.5 5.44772 1.94772 5 2.5 5Z' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M8 14V15.5' stroke='%23000' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='5.5' cy='8.5' r='1' fill='%23000'/%3E%3Ccircle cx='10.5' cy='8.5' r='1' fill='%23000'/%3E%3C/svg%3E");
+  mask-size: 16px 16px;
+  -webkit-mask-size: 16px 16px;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-position: center;
+}
+
 .mcpAs-intro {
   margin: 0;
   font-size: 14px;
@@ -162,7 +184,7 @@
 
 .mcpAs-selectInput {
   appearance: none;
-  max-width: 240px;
+  width: 100%;
   cursor: pointer;
   padding-right: 32px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2381858C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
