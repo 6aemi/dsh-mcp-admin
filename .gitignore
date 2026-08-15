@@ -3,4 +3,3 @@ lib/
 *.tgz
 .codegraph/
 docs/
-tsconfig.json
