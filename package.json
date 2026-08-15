@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "description": "MCP admin for dsh: /mcp server status and per-profile MCP server management (add/edit/delete/enable) from the settings page, via a typert remote.",
   "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "mcp-client",
+    "deepseek",
+    "cordis"
+  ],
   "type": "module",
   "main": "lib/host/index.js",
   "exports": {

@@ -1,5 +1,9 @@
 # dsh-mcp-admin
 
+<p align="center">
+  <a href="README.md">简体中文</a> | <a href="README_en.md">English</a>
+</p>
+
 一个 dsh (DeepSeek Harness) 插件：**查看 MCP 状态**（`/mcp` 命令）+ **在设置页管理 MCP 服务**（增删改启停，写回 `cordis.patch.yml`）。[MIT](LICENSE) 许可。
 
 `/mcp` 命令输出:
