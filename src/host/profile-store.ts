@@ -14,8 +14,8 @@
  * non-MCP insert rows) round-trip unchanged.
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { readFileSync, writeFileSync, renameSync, rmSync, mkdirSync, existsSync } from 'node:fs'
+import { join, dirname } from 'node:path'
 import { parseDocument, YAMLMap, YAMLSeq, Scalar, type Document, isMap, isSeq, isScalar } from 'yaml'
 
 export const MCP_CLIENT_PLUGIN = '@deepseek-ai/dsh-mcp-client'
@@ -186,7 +186,15 @@ function writeIfChanged(patchPath: string, doc: Document): void {
   const next = doc.toString()
   const prev = existsSync(patchPath) ? readFileSync(patchPath, 'utf8') : undefined
   if (prev === next) return
-  writeFileSync(patchPath, next)
+  mkdirSync(dirname(patchPath), { recursive: true })
+  const tmp = `${patchPath}.tmp.${Date.now()}`
+  try {
+    writeFileSync(tmp, next, 'utf8')
+    renameSync(tmp, patchPath)
+  } catch (err) {
+    try { rmSync(tmp, { force: true }) } catch {}
+    throw err
+  }
 }
 
 function ensureSeq(doc: Document): YAMLSeq {

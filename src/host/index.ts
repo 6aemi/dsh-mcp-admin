@@ -96,7 +96,7 @@ export function apply(ctx: Context): void {
 function getActiveServerNames(ctx: Context): Set<string> {
   const names = new Set<string>()
   for (const [, runtime] of ctx.registry.entries()) {
-    if (runtime.name !== 'mcp-client') continue
+    if (runtime.name !== 'mcp-client' && runtime.name !== '@deepseek-ai/dsh-mcp-client' && !runtime.name.endsWith('mcp-client')) continue
     for (const fiber of runtime.fibers) {
       const serverName = (fiber.config as { serverName?: string } | undefined)?.serverName
       if (serverName) names.add(serverName)

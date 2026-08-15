@@ -63,9 +63,11 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
 
   // Poll host per second for live state updates without clobbering in-progress text edits.
   useEffect(() => {
+    let alive = true
     const timer = setInterval(async () => {
       try {
         const servers = await loadServers()
+        if (!alive) return
         setDrafts(prev => prev.map(d => {
           const fresh = servers.find(s => s.id === d.id)
           if (!fresh) return d
@@ -76,7 +78,10 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
         // Silently retry next cycle.
       }
     }, 1000)
-    return () => clearInterval(timer)
+    return () => {
+      alive = false
+      clearInterval(timer)
+    }
   }, [loadServers])
 
   const persist = useMemo(() => {
@@ -146,7 +151,7 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
 
   const saveAdd = (): void => {
     if (newServer === undefined) return
-    const validation = validateDraft(newServer, true)
+    const validation = validateDraft(newServer, true, drafts.map(d => d.id))
     if (!validation.valid) {
       setError(validation.error)
       return
@@ -334,7 +339,7 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
             <Button variant="outline" onClick={cancelAdd}>{t('cancel')}</Button>
             <Button
               variant="primary"
-              disabled={!validateDraft(newServer, true).valid}
+              disabled={!validateDraft(newServer, true, drafts.map(d => d.id)).valid}
               onClick={saveAdd}
             >
               {t('save')}

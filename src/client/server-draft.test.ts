@@ -87,6 +87,18 @@ test('validateDraft enforces validation rules for new and existing servers', () 
   assert.equal(emptyNew.valid, false)
   assert.match(emptyNew.error!, /needs an id/)
 
+  // Duplicate id check for new server
+  const dupNew = validateDraft({
+    id: 's1',
+    profile: 'web',
+    serverName: 'my-srv',
+    transport: 'stdio',
+    command: 'run',
+    disabled: false,
+  }, true, ['s1', 's2'])
+  assert.equal(dupNew.valid, false)
+  assert.match(dupNew.error!, /already exists/)
+
   // Missing serverName
   const missingName = validateDraft({
     id: 's1',

@@ -79,9 +79,18 @@ export function toCleanServer(draft: ServerDraft): ServerDef {
  * Validate draft fields before saving.
  * Checks id presence for new servers, serverName, and transport requirements.
  */
-export function validateDraft(draft: ServerDraft, isNew = false): { valid: boolean; error?: string } {
-  if (isNew && !draft.id.trim()) {
-    return { valid: false, error: 'New server needs an id.' }
+export function validateDraft(
+  draft: ServerDraft,
+  isNew = false,
+  existingIds?: readonly string[],
+): { valid: boolean; error?: string } {
+  if (isNew) {
+    if (!draft.id.trim()) {
+      return { valid: false, error: 'New server needs an id.' }
+    }
+    if (existingIds && existingIds.includes(draft.id.trim())) {
+      return { valid: false, error: `Server id "${draft.id.trim()}" already exists.` }
+    }
   }
 
   if (!draft.serverName.trim()) {

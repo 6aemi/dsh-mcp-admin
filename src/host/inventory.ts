@@ -107,7 +107,8 @@ export class ServerInventory {
    */
   sync(servers: ServerDef[]): { ok: boolean } {
     const valid = servers.filter(s =>
-      s.serverName.trim() !== ''
+      Boolean(s.id && s.id.trim() !== '')
+      && s.serverName.trim() !== ''
       && (s.transport === 'stdio' ? (s.command ?? '').trim() !== '' : (s.url ?? '').trim() !== ''),
     )
     const normalized = valid.map(s => ({ ...s, profile: this.profile }))
