@@ -31,7 +31,8 @@
   "scripts": {
     "build": "node build.mjs",
     "prepare": "node build.mjs",
-    "test": "node --test 'src/**/*.test.ts'"
+    "test": "node --test 'src/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "yaml": "^2.9.0"
