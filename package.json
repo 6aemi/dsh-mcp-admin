@@ -18,10 +18,7 @@
   "exports": {
     ".": "./lib/host/index.js",
     "./host": "./lib/host/index.js",
-    "./client": {
-      "types": "./lib/client/index.d.ts",
-      "default": "./lib/client.js"
-    },
+    "./client": "./lib/client.js",
     "./package.json": "./package.json"
   },
   "files": [

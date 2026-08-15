@@ -21,12 +21,15 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      # 把 package.json 版本同步成 tag 版本(去掉 v 前缀),避免 tag 与版本不一致。
+      - run: pnpm install --frozen-lockfile
+
+      # 把 package.json 版本同步成 tag 版本(去掉 v 前缀), 避免 tag 与版本不一致。
       - name: Sync version to tag
         run: node -e "const p=require('./package.json'); p.version=process.env.GITHUB_REF_NAME.slice(1); require('fs').writeFileSync('package.json', JSON.stringify(p,null,2)+'\n')"
 
-      - run: pnpm install --frozen-lockfile
-      - run: node build.mjs
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm run build
       - run: pnpm pack
 
       - name: Create release

@@ -54,8 +54,14 @@ ${body}
 atomicWrite('lib/client.js', wrapped)
 
 function atomicWrite(file, text) {
-  writeFileSync(file + '.tmp', text)
-  renameSync(file + '.tmp', file)
+  const tmp = file + '.tmp'
+  try {
+    writeFileSync(tmp, text)
+    renameSync(tmp, file)
+  } catch (err) {
+    try { rmSync(tmp, { force: true }) } catch {}
+    throw err
+  }
 }
 
 console.log('built lib/ (host + client bundle, atomic)')

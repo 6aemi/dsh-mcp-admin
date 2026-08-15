@@ -89,10 +89,13 @@ const contribution: TypertRemoteContribution = {
 }
 
 export function apply(ctx: Context): void {
-  const commandUi = ctx.get('commandUi') as CommandUiLike
-  const remote = ctx.get('remote') as unknown as {
-    $mount(c: TypertRemoteContribution): Promise<unknown>
+  const remote = ctx.get('remote') as { $mount?(c: TypertRemoteContribution): Promise<unknown> } | undefined
+  if (!remote?.$mount) {
+    ctx.logger.warn('mcp-admin: ctx.remote.$mount unavailable; client admin disabled')
+    return
   }
+
+  const commandUi = ctx.get('commandUi') as CommandUiLike | undefined
   const mounted = remote.$mount(contribution).then(
     () => undefined,
     (err: unknown) => { ctx.logger.warn('mcp-admin: remote mount failed', err) },
@@ -109,31 +112,33 @@ export function apply(ctx: Context): void {
   // /model). Data comes from ctx.remote.mcpAdmin.list() — no command, no chat.
   // Selecting a server executes `/mcp <server>` so its full tool list lands as
   // a durable command node in the conversation.
-  ctx.effect(() => commandUi.decorate({
-    name: 'mcp',
-    available: () => true,
-    ui: {
-      kind: 'popupSelect',
-      options: async () => {
-        const servers = await listServers(mcpAdmin())
-        return servers.map(s => ({
-          id: s.serverName,
-          label: `${s.serverName} · ${s.tools} tools`,
-          detail: serverStatusLabel(s),
-        }))
+  if (commandUi?.decorate) {
+    ctx.effect(() => commandUi.decorate({
+      name: 'mcp',
+      available: () => true,
+      ui: {
+        kind: 'popupSelect',
+        options: async () => {
+          const servers = await listServers(mcpAdmin())
+          return servers.map(s => ({
+            id: s.serverName,
+            label: `${s.serverName} · ${s.tools} tools`,
+            detail: serverStatusLabel(s),
+          }))
+        },
+        onSelect: async (option, session) => {
+          const commands = ctx.get('remote.commands') as unknown as {
+            execute(sessionId: string, line: string): Promise<{ ok: boolean; value?: unknown; error?: { code: string; message: string } }>
+          }
+          const res = await commands.execute(session.sessionId, `/mcp ${option.id}`)
+          if (!res?.ok) throw new Error(`command execute failed: ${res?.error?.code}: ${res?.error?.message}`)
+          // ok:true + value:undefined = command name didn't resolve → no node was
+          // created, so surface it instead of silently doing nothing.
+          if (res.value === undefined) throw new Error(`command not found: /mcp ${option.id}`)
+        },
       },
-      onSelect: async (option, session) => {
-        const commands = ctx.get('remote.commands') as unknown as {
-          execute(sessionId: string, line: string): Promise<{ ok: boolean; value?: unknown; error?: { code: string; message: string } }>
-        }
-        const res = await commands.execute(session.sessionId, `/mcp ${option.id}`)
-        if (!res?.ok) throw new Error(`command execute failed: ${res?.error?.code}: ${res?.error?.message}`)
-        // ok:true + value:undefined = command name didn't resolve → no node was
-        // created, so surface it instead of silently doing nothing.
-        if (res.value === undefined) throw new Error(`command not found: /mcp ${option.id}`)
-      },
-    },
-  }), 'mcp-admin: /mcp decoration')
+    }), 'mcp-admin: /mcp decoration')
+  }
 
   const injected = (): McpAdminSectionInjected => ({
     loadServers: async () => listServers(mcpAdmin()),
@@ -143,18 +148,26 @@ export function apply(ctx: Context): void {
     },
   })
 
-  ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: 'mcp-admin',
-    order: 20,
-    label: () => 'MCP',
-    inject: injected,
-  }, McpAdminSection))
+  if (ctx.slots?.inject) {
+    ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'mcp-admin',
+      order: 20,
+      label: () => 'MCP',
+      inject: injected,
+    }, McpAdminSection))
+  }
 }
 
 /** Fetch the full server list (with tool counts) from the host. */
 async function listServers(api: Promise<McpAdminRemoteApi>): Promise<ServerView[]> {
-  const res = await (await api).list()
-  if (!res?.ok) return []
-  return res.value ?? []
+  try {
+    const client = await api
+    if (!client?.list) return []
+    const res = await client.list()
+    if (!res?.ok) return []
+    return res.value ?? []
+  } catch {
+    return []
+  }
 }
