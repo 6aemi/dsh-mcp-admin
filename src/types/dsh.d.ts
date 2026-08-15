@@ -143,6 +143,12 @@ declare module '@deepseek-ai/dsh-client-ui-primitives' {
     className?: string
   }
   export function StateDot(props: StateDotProps): JSX.Element
+
+  export interface IconProps {
+    size?: number
+    className?: string
+  }
+  export function IconPlusOutline16(props: IconProps): JSX.Element
 }
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {

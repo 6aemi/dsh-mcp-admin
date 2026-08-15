@@ -234,6 +234,11 @@ button[data-nav-id="mcp-admin"]::before {
   gap: 8px;
 }
 
+.mcpAs-editorActions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .mcpAs-emptySlot {
   box-sizing: border-box;
   display: flex;
@@ -249,10 +254,14 @@ button[data-nav-id="mcp-admin"]::before {
 
 .mcpAs-addButton {
   width: 100%;
-  height: 56px;
+  height: 48px;
   border: 1px dashed var(--dsw-alias-border-l3);
   border-radius: 12px;
   font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .mcpAs-addCard {
@@ -276,8 +285,11 @@ button[data-nav-id="mcp-admin"]::before {
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 36px;
-  height: 22px;
+  justify-content: center;
+  width: 34px;
+  height: 28px;
+  padding: 0;
+  margin-right: 4px;
   flex: none;
   cursor: pointer;
 }
@@ -290,9 +302,9 @@ button[data-nav-id="mcp-admin"]::before {
 }
 
 .mcpAs-switchTrack {
-  position: absolute;
-  inset: 0;
-  border-radius: 11px;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
   background: var(--dsw-alias-border-l3);
   transition: background 120ms ease;
 }
@@ -303,10 +315,10 @@ button[data-nav-id="mcp-admin"]::before {
 
 .mcpAs-switchKnob {
   position: absolute;
-  top: 2px;
+  top: 6px;
   left: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);

@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Input, Modal, Pill, StateDot } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button, Input, Modal, Pill, StateDot, IconPlusOutline16 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ServerDef } from '../host/profile-store.ts'
 import {
@@ -265,7 +265,13 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
                 </div>
                 <div className="mcpAs-editorActions">
                   <Button variant="outline" onClick={closeEdit}>{t('cancel')}</Button>
-                  <Button variant="primary" onClick={saveEdit}>{t('save')}</Button>
+                  <Button
+                    variant="primary"
+                    disabled={!validateDraft(editDraft, false).valid}
+                    onClick={saveEdit}
+                  >
+                    {t('save')}
+                  </Button>
                 </div>
               </div>
             )}
@@ -326,13 +332,22 @@ export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate
           </div>
           <div className="mcpAs-editorActions">
             <Button variant="outline" onClick={cancelAdd}>{t('cancel')}</Button>
-            <Button variant="primary" onClick={saveAdd}>{t('save')}</Button>
+            <Button
+              variant="primary"
+              disabled={!validateDraft(newServer, true).valid}
+              onClick={saveAdd}
+            >
+              {t('save')}
+            </Button>
           </div>
         </div>
       )}
 
       {!adding && (
-        <Button variant="outline" className="mcpAs-addButton" onClick={openAdd}>{t('addServer')}</Button>
+        <Button variant="outline" className="mcpAs-addButton" onClick={openAdd}>
+          <IconPlusOutline16 size={14} />
+          {t('addServer')}
+        </Button>
       )}
 
       <Modal
