@@ -117,11 +117,14 @@ export function serverState(d: { disabled?: boolean; active?: boolean; tools?: n
 /**
  * Human-readable status label (used by /mcp popup select and status pills).
  */
-export function serverStatusLabel(d: { disabled?: boolean; active?: boolean; tools?: number }): string {
-  if (d.disabled) return 'disabled'
-  if ((d.tools ?? 0) > 0) return 'connected'
-  if (d.active === true) return 'connection failed'
-  return 'disconnected'
+export function serverStatusLabel(
+  d: { disabled?: boolean; active?: boolean; tools?: number },
+  t?: (key: string) => string,
+): string {
+  if (d.disabled) return t ? t('disabled') : 'disabled'
+  if ((d.tools ?? 0) > 0) return t ? t('statusConnected') : 'connected'
+  if (d.active === true) return t ? t('statusFailed') : 'connection failed'
+  return t ? t('statusDisconnected') : 'disconnected'
 }
 
 /** Count of enabled servers with at least one live tool. */

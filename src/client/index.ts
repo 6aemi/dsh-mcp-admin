@@ -12,6 +12,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { McpAdminSection, type McpAdminSectionInjected, type McpAdminSectionProps } from './McpAdminSection.tsx'
 import type { ServerDef } from '../host/profile-store.ts'
 import { serverStatusLabel } from './server-draft.ts'
+import { NS, zh, en, defaultTranslate } from './locales.ts'
 import CSS from './McpAdminSection.css'
 
 const tagId = 'dsh-mcp-admin/style'
@@ -105,6 +106,17 @@ export function apply(ctx: Context): void {
     return
   }
 
+  const locale = ctx.get('locale') as {
+    register?(ns: string, dicts: { zh: Record<string, string>; en: Record<string, string> }): void
+    bind?(ns: string): (key: string, params?: Record<string, unknown>) => string
+  } | undefined
+
+  if (locale?.register) {
+    ctx.effect(() => locale.register!(NS, { zh, en }), 'dsh-mcp-admin: copy dictionaries')
+  }
+
+  const t = locale?.bind ? locale.bind(NS) : defaultTranslate
+
   const commandUi = ctx.get('commandUi') as CommandUiLike | undefined
   const mounted = remote.$mount(contribution).then(
     () => undefined,
@@ -133,7 +145,7 @@ export function apply(ctx: Context): void {
           return servers.map(s => ({
             id: s.serverName,
             label: `${s.serverName} · ${s.tools} tools`,
-            detail: serverStatusLabel(s),
+            detail: serverStatusLabel(s, t),
           }))
         },
         onSelect: async (option, session) => {
@@ -156,6 +168,7 @@ export function apply(ctx: Context): void {
       const res = await (await mcpAdmin()).set(servers as ServerDef[])
       if (!res?.ok) throw new Error(`mcp save failed: ${res?.error?.code}: ${res?.error?.message}`)
     },
+    t,
   })
 
   if (ctx.slots?.inject) {
@@ -163,7 +176,8 @@ export function apply(ctx: Context): void {
       name: 'settings.section',
       id: 'mcp-admin',
       order: 20,
-      label: () => 'MCP',
+      label: () => t('nav'),
+      locale: NS,
       inject: injected,
     }, McpAdminSection))
   }

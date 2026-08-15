@@ -23,6 +23,7 @@ import {
   connectedCount,
   TRANSPORT_LABELS,
 } from './server-draft.ts'
+import { defaultTranslate } from './locales.ts'
 import CSS from './McpAdminSection.css'
 
 /** Registration-side business face for the section. */
@@ -31,6 +32,8 @@ export interface McpAdminSectionInjected {
   loadServers: () => Promise<ServerDef[]>
   /** Persist the full server list (Host reconciles patch files). */
   saveServers: (servers: readonly ServerDef[]) => Promise<void>
+  /** Translator function from the locale runtime. */
+  t?: (key: string, params?: Record<string, unknown>) => string
 }
 
 /** Props the renderer binds for the section. */
@@ -39,7 +42,7 @@ export type McpAdminSectionProps =
   & PropsLocale<'mcp-admin'>
   & InjectFace<McpAdminSectionInjected>
 
-export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionProps) {
+export function McpAdminSection({ loadServers, saveServers, t = defaultTranslate }: McpAdminSectionProps) {
   const [drafts, setDrafts] = useState<ServerDraft[]>([])
   const [error, setError] = useState<string>()
   const [loading, setLoading] = useState(true)
@@ -167,18 +170,20 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
     <div className="mcpAs-section">
       <style>{CSS}</style>
       <div className="mcpAs-titleRow">
-        <h2 className="mcpAs-title">MCP Servers</h2>
-        <Pill className="mcpAs-pill">{connectedCount(drafts)}/{drafts.length} connected</Pill>
+        <h2 className="mcpAs-title">{t('title')}</h2>
+        <Pill className="mcpAs-pill">
+          {t('connected', { connected: connectedCount(drafts), total: drafts.length })}
+        </Pill>
       </div>
       <p className="mcpAs-intro">
-        Stored in this profile&apos;s cordis.patch.yml — changes hot-reload automatically.
+        {t('intro')}
       </p>
       {error && <p className="mcpAs-error">{error}</p>}
 
       {loading
-        ? <p className="mcpAs-intro">Loading…</p>
+        ? <p className="mcpAs-intro">{t('loading')}</p>
         : drafts.length === 0
-          ? <div className="mcpAs-emptySlot">No MCP servers configured.</div>
+          ? <div className="mcpAs-emptySlot">{t('empty')}</div>
           : null}
 
       <ul className="mcpAs-rows">
@@ -187,9 +192,9 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
             <div className="mcpAs-rowHead">
               <span className="mcpAs-rowIdentity">
                 <StateDot state={serverState(d)} />
-                <span className="mcpAs-rowName">{d.serverName || 'unnamed'}</span>
+                <span className="mcpAs-rowName">{d.serverName || t('unnamed')}</span>
                 <Pill className="mcpAs-pill">{TRANSPORT_LABELS[d.transport]}</Pill>
-                {d.disabled && <Pill className="mcpAs-pill">disabled</Pill>}
+                {d.disabled && <Pill className="mcpAs-pill">{t('disabled')}</Pill>}
               </span>
               <div className="mcpAs-rowActions">
                 <label className="mcpAs-switch" aria-label={d.disabled ? 'enabled' : 'disabled'}>
@@ -202,10 +207,10 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
                   <span className="mcpAs-switchKnob" />
                 </label>
                 <Button variant="outline" size="sm" onClick={() => (editingId === d.id ? closeEdit() : openEdit(d))}>
-                  {editingId === d.id ? 'Cancel' : 'Edit'}
+                  {editingId === d.id ? t('cancel') : t('edit')}
                 </Button>
                 <Button variant="outline" size="sm" className="mcpAs-deleteConfirm" onClick={() => setDeleteId(d.id)}>
-                  Delete
+                  {t('delete')}
                 </Button>
               </div>
             </div>
@@ -214,17 +219,17 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
               <div className="mcpAs-editor">
                 <div className="mcpAs-grid">
                   <div className="mcpAs-field">
-                    <label className="mcpAs-fieldLabel">id</label>
+                    <label className="mcpAs-fieldLabel">{t('id')}</label>
                     <Input className="mcpAs-inputWrap" value={editDraft.id} disabled
                       onChange={e => updateEdit({ id: e.target.value })} />
                   </div>
                   <div className="mcpAs-field">
-                    <label className="mcpAs-fieldLabel">serverName</label>
+                    <label className="mcpAs-fieldLabel">{t('serverName')}</label>
                     <Input className="mcpAs-inputWrap" placeholder="my-server" value={editDraft.serverName}
                       onChange={e => updateEdit({ serverName: e.target.value })} />
                   </div>
                   <div className="mcpAs-field">
-                    <label className="mcpAs-fieldLabel">transport</label>
+                    <label className="mcpAs-fieldLabel">{t('transport')}</label>
                     <select className="mcpAs-input mcpAs-selectInput" value={editDraft.transport}
                       onChange={e => updateEdit({ transport: e.target.value as 'stdio' | 'streamable-http' })}>
                       <option value="stdio">stdio</option>
@@ -233,34 +238,34 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
                   </div>
                   {editDraft.transport === 'stdio' ? (
                     <div className="mcpAs-field">
-                      <label className="mcpAs-fieldLabel">command</label>
+                      <label className="mcpAs-fieldLabel">{t('command')}</label>
                       <Input className="mcpAs-inputWrap" placeholder="npx ..." value={editDraft.command ?? ''}
                         onChange={e => updateEdit({ command: e.target.value })} />
                     </div>
                   ) : (
                     <div className="mcpAs-field">
-                      <label className="mcpAs-fieldLabel">url</label>
+                      <label className="mcpAs-fieldLabel">{t('url')}</label>
                       <Input className="mcpAs-inputWrap" placeholder="https://..." value={editDraft.url ?? ''}
                         onChange={e => updateEdit({ url: e.target.value })} />
                     </div>
                   )}
                   {editDraft.transport === 'stdio' ? (
                     <div className="mcpAs-field mcpAs-span2">
-                      <label className="mcpAs-fieldLabel">args (one per line)</label>
+                      <label className="mcpAs-fieldLabel">{t('args')}</label>
                       <textarea className="mcpAs-textarea" rows={2} value={editDraft.argsText ?? ''}
                         onChange={e => updateEdit({ argsText: e.target.value })} />
                     </div>
                   ) : (
                     <div className="mcpAs-field mcpAs-span2">
-                      <label className="mcpAs-fieldLabel">headers (key=value per line)</label>
+                      <label className="mcpAs-fieldLabel">{t('headers')}</label>
                       <textarea className="mcpAs-textarea" rows={2} value={editDraft.headersText ?? ''}
                         onChange={e => updateEdit({ headersText: e.target.value })} />
                     </div>
                   )}
                 </div>
                 <div className="mcpAs-editorActions">
-                  <Button variant="outline" onClick={closeEdit}>Cancel</Button>
-                  <Button variant="primary" onClick={saveEdit}>Save</Button>
+                  <Button variant="outline" onClick={closeEdit}>{t('cancel')}</Button>
+                  <Button variant="primary" onClick={saveEdit}>{t('save')}</Button>
                 </div>
               </div>
             )}
@@ -271,21 +276,21 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
       {adding && newServer !== undefined && (
         <div className="mcpAs-addCard">
           <div className="mcpAs-addHead">
-            <span className="mcpAs-rowName">New server</span>
+            <span className="mcpAs-rowName">{t('newServer')}</span>
           </div>
           <div className="mcpAs-grid">
             <div className="mcpAs-field">
-              <label className="mcpAs-fieldLabel">id</label>
+              <label className="mcpAs-fieldLabel">{t('id')}</label>
               <Input className="mcpAs-inputWrap" value={newServer.id}
                 onChange={e => updateNew({ id: e.target.value })} />
             </div>
             <div className="mcpAs-field">
-              <label className="mcpAs-fieldLabel">serverName</label>
+              <label className="mcpAs-fieldLabel">{t('serverName')}</label>
               <Input className="mcpAs-inputWrap" placeholder="my-server" value={newServer.serverName}
                 onChange={e => updateNew({ serverName: e.target.value })} />
             </div>
             <div className="mcpAs-field">
-              <label className="mcpAs-fieldLabel">transport</label>
+              <label className="mcpAs-fieldLabel">{t('transport')}</label>
               <select className="mcpAs-input mcpAs-selectInput" value={newServer.transport}
                 onChange={e => updateNew({ transport: e.target.value as 'stdio' | 'streamable-http' })}>
                 <option value="stdio">stdio</option>
@@ -294,51 +299,51 @@ export function McpAdminSection({ loadServers, saveServers }: McpAdminSectionPro
             </div>
             {newServer.transport === 'stdio' ? (
               <div className="mcpAs-field">
-                <label className="mcpAs-fieldLabel">command</label>
+                <label className="mcpAs-fieldLabel">{t('command')}</label>
                 <Input className="mcpAs-inputWrap" placeholder="npx ..." value={newServer.command ?? ''}
                   onChange={e => updateNew({ command: e.target.value })} />
               </div>
             ) : (
               <div className="mcpAs-field">
-                <label className="mcpAs-fieldLabel">url</label>
+                <label className="mcpAs-fieldLabel">{t('url')}</label>
                 <Input className="mcpAs-inputWrap" placeholder="https://..." value={newServer.url ?? ''}
                   onChange={e => updateNew({ url: e.target.value })} />
               </div>
             )}
             {newServer.transport === 'stdio' ? (
               <div className="mcpAs-field mcpAs-span2">
-                <label className="mcpAs-fieldLabel">args (one per line)</label>
+                <label className="mcpAs-fieldLabel">{t('args')}</label>
                 <textarea className="mcpAs-textarea" rows={2} value={newServer.argsText ?? ''}
                   onChange={e => updateNew({ argsText: e.target.value })} />
               </div>
             ) : (
               <div className="mcpAs-field mcpAs-span2">
-                <label className="mcpAs-fieldLabel">headers (key=value per line)</label>
+                <label className="mcpAs-fieldLabel">{t('headers')}</label>
                 <textarea className="mcpAs-textarea" rows={2} value={newServer.headersText ?? ''}
                   onChange={e => updateNew({ headersText: e.target.value })} />
               </div>
             )}
           </div>
           <div className="mcpAs-editorActions">
-            <Button variant="outline" onClick={cancelAdd}>Cancel</Button>
-            <Button variant="primary" onClick={saveAdd}>Save</Button>
+            <Button variant="outline" onClick={cancelAdd}>{t('cancel')}</Button>
+            <Button variant="primary" onClick={saveAdd}>{t('save')}</Button>
           </div>
         </div>
       )}
 
       {!adding && (
-        <Button variant="outline" className="mcpAs-addButton" onClick={openAdd}>+ Add server</Button>
+        <Button variant="outline" className="mcpAs-addButton" onClick={openAdd}>{t('addServer')}</Button>
       )}
 
       <Modal
         open={deleteId !== undefined}
         onClose={() => setDeleteId(undefined)}
-        title="Remove MCP server?"
-        description="This removes the server from this profile and disconnects it."
+        title={t('deleteModalTitle')}
+        description={t('deleteModalDesc')}
         footer={(
           <>
-            <Button variant="outline" autoFocus onClick={() => setDeleteId(undefined)}>Cancel</Button>
-            <Button variant="outline" className="mcpAs-deleteConfirm" onClick={confirmDelete}>Remove</Button>
+            <Button variant="outline" autoFocus onClick={() => setDeleteId(undefined)}>{t('deleteModalCancel')}</Button>
+            <Button variant="outline" className="mcpAs-deleteConfirm" onClick={confirmDelete}>{t('deleteModalConfirm')}</Button>
           </>
         )}
       />

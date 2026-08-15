@@ -9,6 +9,7 @@ import {
   serverStatusLabel,
   connectedCount,
 } from './server-draft.ts'
+import { zh, en, defaultTranslate } from './locales.ts'
 
 test('createEmptyDraft returns a clean blank stdio draft', () => {
   const draft = createEmptyDraft('web')
@@ -133,22 +134,26 @@ test('validateDraft enforces validation rules for new and existing servers', () 
   }).valid, true)
 })
 
-test('serverState and serverStatusLabel categorize connection health', () => {
+test('serverState and serverStatusLabel categorize connection health with i18n', () => {
   // Disabled
   assert.equal(serverState({ disabled: true }), 'warning')
   assert.equal(serverStatusLabel({ disabled: true }), 'disabled')
+  assert.equal(serverStatusLabel({ disabled: true }, k => zh[k as keyof typeof zh] ?? k), '已禁用')
 
   // Reloading / Pending (active = false)
   assert.equal(serverState({ disabled: false, active: false }), 'ongoing')
   assert.equal(serverStatusLabel({ disabled: false, active: false }), 'disconnected')
+  assert.equal(serverStatusLabel({ disabled: false, active: false }, k => zh[k as keyof typeof zh] ?? k), '未连接')
 
   // Connected (active = true, tools > 0)
   assert.equal(serverState({ disabled: false, active: true, tools: 3 }), 'done')
   assert.equal(serverStatusLabel({ disabled: false, active: true, tools: 3 }), 'connected')
+  assert.equal(serverStatusLabel({ disabled: false, active: true, tools: 3 }, k => zh[k as keyof typeof zh] ?? k), '已连接')
 
   // Connection failed (active = true, tools = 0)
   assert.equal(serverState({ disabled: false, active: true, tools: 0 }), 'error')
   assert.equal(serverStatusLabel({ disabled: false, active: true, tools: 0 }), 'connection failed')
+  assert.equal(serverStatusLabel({ disabled: false, active: true, tools: 0 }, k => zh[k as keyof typeof zh] ?? k), '连接失败')
 })
 
 test('connectedCount tallies only enabled servers with tools > 0', () => {
@@ -159,4 +164,13 @@ test('connectedCount tallies only enabled servers with tools > 0', () => {
     { disabled: false, tools: 1 },
   ])
   assert.equal(count, 2)
+})
+
+test('defaultTranslate formats templates and zh/en dictionaries share identical keys', () => {
+  assert.deepEqual(Object.keys(zh).sort(), Object.keys(en).sort())
+  assert.equal(defaultTranslate('title'), 'MCP Servers')
+  assert.equal(
+    defaultTranslate('connected', { connected: 2, total: 3 }),
+    '2/3 connected',
+  )
 })
