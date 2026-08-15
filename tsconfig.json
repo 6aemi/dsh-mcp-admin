@@ -7,7 +7,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "experimentalDecorators": true,
     "noEmit": true,
     "jsx": "react-jsx"
   },

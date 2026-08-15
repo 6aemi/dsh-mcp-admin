@@ -60,7 +60,16 @@ declare module '@deepseek-ai/dsh-llm' {
 declare module '@deepseek-ai/dsh-typert-protocol' {
   import type { Context } from '@deepseek-ai/cordis'
 
-  export function Remote(target: unknown, propertyKey: string, descriptor?: PropertyDescriptor): void
+  export type RemoteMethodDecorator = <This extends object, Args extends unknown[], Result>(
+    method: (this: This, ...args: Args) => Result,
+    context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Result>
+  ) => void
+
+  export function Remote(exportName?: string): RemoteMethodDecorator
+  export function Remote<This extends object, Args extends unknown[], Result>(
+    method: (this: This, ...args: Args) => Result,
+    context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Result>
+  ): void
 
   export class TypertRemoteService {
     protected readonly ctx: Context
